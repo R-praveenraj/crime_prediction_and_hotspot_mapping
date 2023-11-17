@@ -16,17 +16,17 @@ TWILIO_ACCOUNT_SID='AC2776decd32fa03fef35143e82e177b29'
 TWILIO_AUTH_TOKEN='4da9dff9e37f98ef56b99de78271226e'
 TWILIO_PHONE_NUMBER='+13344630998'
 POLICE_PHONE_NUMBER='+919361117846'
-try:
-    twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+# try:
+#     twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-    message = twilio_client.messages.create(
-        body="Emergency: Crime reported!",
-        from_=+13344630998,
-        to=+919361117846
-    )
-    st.success("SMS to police sent successfully!")
-except Exception as e:
-    st.error(f"Error sending SMS: {str(e)}")
+#     message = twilio_client.messages.create(
+#         body="Emergency: Crime reported!",
+#         from_=+13344630998,
+#         to=+919361117846
+#     )
+#     st.success("SMS to police sent successfully!")
+# except Exception as e:
+#     st.error(f"Error sending SMS: {str(e)}")
 
 st.title("Crime Prediction and Reporting")
 
@@ -51,19 +51,30 @@ if report_button:
         if len(user_location) == 2:
             user_latitude, user_longitude = float(user_location[0]), float(user_location[1])
             new_report = {
-                'date':date,
+                'date': date,
                 'latitude': user_latitude,
                 'longitude': user_longitude,
                 'crime_type': incident_type,
-                'time_of_day':time,
-                'location':location,
-                'victim_gender':gender,
+                'time_of_day': time,
+                'location': location,
+                'victim_gender': gender,
             }
-
-            crime_data=pd.concat([crime_data, pd.DataFrame([new_report])], ignore_index=True)
+            try:
+                twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+                message = twilio_client.messages.create(
+                    body=f"Emergency: Crime reported at {location}. Type: {incident_type}.",
+                    from_=+13344630998,
+                    to=+919361117846
+                )
+                st.success("Incident reported, and SMS to police sent successfully!")
+            except Exception as e:
+                st.error(f"Error sending SMS to police: {str(e)}")
+                
+            crime_data = pd.concat([crime_data, pd.DataFrame([new_report])], ignore_index=True)
             crime_data.to_csv('crime.csv', index=False)
 
             st.success("Incident reported and saved to the CSV file.")
+
 
 st.subheader("Crime Hotspot Map")
 heatmap=folium.Map(location=[crime_data['latitude'].mean(), crime_data['longitude'].mean()], zoom_start=12)
