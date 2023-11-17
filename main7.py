@@ -12,10 +12,10 @@ crime_data=pd.read_csv('crime.csv')
 gdf=gpd.GeoDataFrame(crime_data, 
 geometry=gpd.points_from_xy(crime_data.longitude, crime_data.latitude))
 
-TWILIO_ACCOUNT_SID='AC2776decd32fa03fef35143e82e177b29'
-TWILIO_AUTH_TOKEN='4da9dff9e37f98ef56b99de78271226e'
-TWILIO_PHONE_NUMBER='+13344630998'
-POLICE_PHONE_NUMBER='+919361117846'
+TWILIO_ACCOUNT_SID=''
+TWILIO_AUTH_TOKEN=''
+TWILIO_PHONE_NUMBER=''
+POLICE_PHONE_NUMBER=''
 # try:
 #     twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
@@ -61,9 +61,8 @@ if report_button:
             }
             try:
                 twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-                message = twilio_client.messages.create(body=f"Emergency: Crime reported at {location}. Type: {incident_type}.",
-                    from_=+13344630998,
-                    to=+919361117846)
+                message = twilio_client.messages.create(
+                    body=f"Emergency: Crime reported at {location}. Type: {incident_type} date: {date} latitude: {user_latitude} longitude: {user_longitude} .",from_=+13344630998,to=+919361117846)
                 st.success("Incident reported, and SMS to police sent successfully!")
             except Exception as e:
                 st.error(f"Error sending SMS to police: {str(e)}")
